@@ -204,7 +204,7 @@
     
     .main-content {
       display: grid;
-      grid-template-columns: 2fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 2rem;
       animation: fadeIn 0.6s ease-out 0.4s both;
     }
@@ -218,7 +218,7 @@
     
     @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
       .main-content {
-        grid-template-columns: 1.5fr 1fr;
+        grid-template-columns: 1fr 1fr;
         gap: 1.5rem;
       }
     }
@@ -227,6 +227,11 @@
       .main-content {
         grid-template-columns: 1fr;
       }
+    }
+    
+    .player-section-wrapper {
+      width: 100%;
+      animation: fadeIn 0.6s ease-out 0.3s both;
     }
     
     .player-section {
@@ -284,6 +289,24 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       max-height: 800px;
       overflow-y: auto;
+    }
+    
+    .results-section {
+      width: 100%;
+      animation: fadeIn 0.6s ease-out 0.4s both;
+      margin-bottom: 2rem;
+    }
+    
+    @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+      .results-section, .playlist-section {
+        max-height: 450px;
+      }
+    }
+    
+    @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+      .results-section, .playlist-section {
+        max-height: 400px;
+      }
     }
     
     .results-section::-webkit-scrollbar,
@@ -557,7 +580,6 @@
       background: var(--bg-medium);
       padding: 1.5rem 2rem;
       border-radius: 20px;
-      margin-bottom: 2rem;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
       border: 1px solid rgba(255, 255, 255, 0.1);
       animation: fadeIn 0.6s ease-out 0.3s both;
@@ -788,12 +810,6 @@
       display: block;
     }
     
-    @media (min-width: 768px) and (max-width: 1024px) {
-      .results-section, .playlist-section {
-        max-height: 500px;
-      }
-    }
-    
     .countdown-overlay {
       position: fixed;
       top: 0;
@@ -944,8 +960,8 @@
 <body>
   <div class="container">
     <header>
-      <h1>KARAOKE KOWALSKI</h1>
-      <p class="subtitle">Ridiculous Karaoke Theater</p>
+      <h1>KARAOKE STAGE</h1>
+      <p class="subtitle">Your Personal Karaoke Theater</p>
     </header>
     
     <div class="search-section">
@@ -966,36 +982,36 @@
       </div>
     </div>
     
+    <div class="player-section-wrapper">
+      <div class="player-section">
+        <div class="player-wrapper">
+          <div id="player"></div>
+        </div>
+        <div class="now-playing" id="nowPlaying">
+          <h3>Ready to Sing</h3>
+          <p>Search for a karaoke song and start your performance!</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="results-section" id="resultsSection" style="display: none;">
+      <div class="section-header">
+        <h2>Search Results</h2>
+      </div>
+      <div id="resultsContainer"></div>
+      <div class="pagination" id="pagination" style="display: none;">
+        <button class="pagination-btn" id="prevPage">← Previous</button>
+        <span class="pagination-info" id="pageInfo"></span>
+        <button class="pagination-btn" id="nextPage">Next →</button>
+      </div>
+    </div>
+    
     <div class="main-content">
-      <div>
-        <div class="player-section">
-          <div class="player-wrapper">
-            <div id="player"></div>
-          </div>
-          <div class="now-playing" id="nowPlaying">
-            <h3>Ready to Sing</h3>
-            <p>Search for a karaoke song and start your performance!</p>
-          </div>
-        </div>
-        
-        <div class="nav-menu">
-          <div class="nav-content">
-            <span class="nav-label">🎵 Browse Hits</span>
-            <div class="dropdown-group" id="decadeDropdowns">
-              <!-- Dropdowns will be generated here -->
-            </div>
-          </div>
-        </div>
-        
-        <div class="results-section" id="resultsSection" style="display: none;">
-          <div class="section-header">
-            <h2>Search Results</h2>
-          </div>
-          <div id="resultsContainer"></div>
-          <div class="pagination" id="pagination" style="display: none;">
-            <button class="pagination-btn" id="prevPage">← Previous</button>
-            <span class="pagination-info" id="pageInfo"></span>
-            <button class="pagination-btn" id="nextPage">Next →</button>
+      <div class="nav-menu">
+        <div class="nav-content">
+          <span class="nav-label">🎵 Browse Hits</span>
+          <div class="dropdown-group" id="decadeDropdowns">
+            <!-- Dropdowns will be generated here -->
           </div>
         </div>
       </div>
@@ -1046,7 +1062,7 @@
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     // YouTube API Key - Replace with your own API key
-    const API_KEY = 'AIzaSyDiwphYsiJiJu5erL-P5cZEvhB2KIgMgYw';
+    const API_KEY = 'YOUR_YOUTUBE_API_KEY_HERE';
     
     // Priority karaoke channels
     const PRIORITY_CHANNELS = [
