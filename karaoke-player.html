@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Karaoke Stage - YouTube Karaoke Player</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Work+Sans:wght@400;600&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary: #FF1744;
+      --primary-dark: #C4122F;
+      --secondary: #FFD600;
+      --bg-dark: #0A0E27;
+      --bg-medium: #1A1F3A;
+      --bg-light: #2A2F4A;
+      --text: #FFFFFF;
+      --text-muted: #9BA3C1;
+      --accent: #00E5FF;
+      --success: #00E676;
+    }
+    
+    body {
+      font-family: 'Work Sans', sans-serif;
+      background: linear-gradient(135deg, #0A0E27 0%, #1A1F3A 100%);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(255, 23, 68, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0, 229, 255, 0.1) 0%, transparent 50%);
+      animation: rotate 30s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: slideDown 0.6s ease-out;
+    }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    h1 {
+      font-family: 'Bungee', cursive;
+      font-size: 3.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 40px rgba(255, 23, 68, 0.3);
+      letter-spacing: 2px;
+    }
+    
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    
+    .search-section {
+      background: var(--bg-medium);
+      padding: 2rem;
+      border-radius: 20px;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: fadeIn 0.6s ease-out 0.2s both;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .search-form {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .search-input {
+      flex: 1;
+      padding: 1rem 1.5rem;
+      font-size: 1rem;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      background: var(--bg-light);
+      color: var(--text);
+      font-family: 'Work Sans', sans-serif;
+      transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 20px rgba(255, 23, 68, 0.3);
+    }
+    
+    .search-btn {
+      padding: 1rem 2.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: var(--text);
+      cursor: pointer;
+      font-family: 'Work Sans', sans-serif;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(255, 23, 68, 0.4);
+    }
+    
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(255, 23, 68, 0.6);
+    }
+    
+    .search-btn:active {
+      transform: translateY(0);
+    }
+    
+    .search-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .search-info {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    
+    .search-info strong {
+      color: var(--accent);
+    }
+    
+    .main-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      animation: fadeIn 0.6s ease-out 0.4s both;
+    }
+    
+    @media (max-width: 968px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .player-section {
+      background: var(--bg-medium);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .player-wrapper {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #000;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+    
+    .player-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .now-playing {
+      text-align: center;
+      padding: 1rem;
+      background: var(--bg-light);
+      border-radius: 12px;
+    }
+    
+    .now-playing h3 {
+      font-size: 1.2rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .now-playing p {
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+    
+    .results-section, .playlist-section {
+      background: var(--bg-medium);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      max-height: 800px;
+      overflow-y: auto;
+    }
+    
+    .results-section::-webkit-scrollbar,
+    .playlist-section::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .results-section::-webkit-scrollbar-track,
+    .playlist-section::-webkit-scrollbar-track {
+      background: var(--bg-light);
+      border-radius: 10px;
+    }
+    
+    .results-section::-webkit-scrollbar-thumb,
+    .playlist-section::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 10px;
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--bg-light);
+    }
+    
+    .section-header h2 {
+      font-family: 'Bungee', cursive;
+      font-size: 1.5rem;
+      color: var(--secondary);
+    }
+    
+    .clear-btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--primary);
+      cursor: pointer;
+      font-family: 'Work Sans', sans-serif;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .clear-btn:hover {
+      background: var(--primary);
+      color: var(--text);
+      transform: scale(1.05);
+    }
+    
+    .video-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: var(--bg-light);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    
+    .video-item:hover {
+      transform: translateX(5px);
+      border-color: var(--primary);
+      box-shadow: 0 4px 20px rgba(255, 23, 68, 0.3);
+    }
+    
+    .video-thumbnail {
+      width: 120px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    
+    .video-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+    }
+    
+    .video-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    
+    .video-channel {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .priority-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      background: var(--success);
+      color: #000;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .add-btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #000;
+      cursor: pointer;
+      font-family: 'Work Sans', sans-serif;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      align-self: center;
+    }
+    
+    .add-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(0, 229, 255, 0.5);
+    }
+    
+    .playlist-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      background: var(--bg-light);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    
+    .playlist-item:hover {
+      border-color: var(--secondary);
+      box-shadow: 0 4px 20px rgba(255, 214, 0, 0.2);
+    }
+    
+    .playlist-item.active {
+      border-color: var(--primary);
+      background: linear-gradient(135deg, rgba(255, 23, 68, 0.2), rgba(255, 23, 68, 0.1));
+    }
+    
+    .playlist-number {
+      font-family: 'Bungee', cursive;
+      font-size: 1.2rem;
+      color: var(--secondary);
+      min-width: 30px;
+      text-align: center;
+    }
+    
+    .remove-btn {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      background: rgba(255, 23, 68, 0.2);
+      color: var(--primary);
+      cursor: pointer;
+      font-family: 'Work Sans', sans-serif;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      margin-left: auto;
+    }
+    
+    .remove-btn:hover {
+      background: var(--primary);
+      color: var(--text);
+      transform: scale(1.1);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+    
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--accent);
+      font-size: 1.1rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .error {
+      background: rgba(255, 23, 68, 0.1);
+      border: 2px solid var(--primary);
+      color: var(--text);
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>KARAOKE STAGE</h1>
+      <p class="subtitle">Your Personal Karaoke Theater</p>
+    </header>
+    
+    <div class="search-section">
+      <form class="search-form" id="searchForm">
+        <input 
+          type="text" 
+          class="search-input" 
+          id="searchInput" 
+          placeholder="Search for karaoke songs (e.g., 'Bohemian Rhapsody' or 'Adele Hello')"
+          required
+        />
+        <button type="submit" class="search-btn" id="searchBtn">
+          🎤 Search
+        </button>
+      </form>
+      <div class="search-info">
+        Searches <strong>priority channels first</strong>: Sing King, KaraFun, Stingray Karaoke, Zoom Karaoke, CC Karaoke, KaraokeMedia
+      </div>
+    </div>
+    
+    <div class="main-content">
+      <div>
+        <div class="player-section">
+          <div class="player-wrapper">
+            <div id="player"></div>
+          </div>
+          <div class="now-playing" id="nowPlaying">
+            <h3>Ready to Sing</h3>
+            <p>Search for a karaoke song and start your performance!</p>
+          </div>
+        </div>
+        
+        <div class="results-section" id="resultsSection" style="display: none;">
+          <div class="section-header">
+            <h2>Search Results</h2>
+          </div>
+          <div id="resultsContainer"></div>
+        </div>
+      </div>
+      
+      <div class="playlist-section">
+        <div class="section-header">
+          <h2>Playlist</h2>
+          <button class="clear-btn" id="clearPlaylist" style="display: none;">Clear All</button>
+        </div>
+        <div id="playlistContainer">
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/>
+            </svg>
+            <p>Your playlist is empty<br/>Add songs from search results!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    // YouTube API Key - Replace with your own API key
+    const API_KEY = 'AIzaSyDiwphYsiJiJu5erL-P5cZEvhB2KIgMgYw';
+    
+    // Priority karaoke channels
+    const PRIORITY_CHANNELS = [
+      'Sing King',
+      'KaraFun',
+      'Stingray Karaoke',
+      'Zoom Karaoke',
+      'CC Karaoke',
+      'KaraokeMedia'
+    ];
+    
+    let player;
+    let playlist = [];
+    let currentVideoIndex = -1;
+    
+    // Initialize YouTube Player
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        playerVars: {
+          autoplay: 0,
+          controls: 1,
+          modestbranding: 1,
+          rel: 0
+        },
+        events: {
+          onStateChange: onPlayerStateChange
+        }
+      });
+    }
+    
+    function onPlayerStateChange(event) {
+      // When video ends, play next in playlist
+      if (event.data === YT.PlayerState.ENDED) {
+        playNext();
+      }
+    }
+    
+    // Search for karaoke videos
+    async function searchKaraoke(query) {
+      const resultsContainer = document.getElementById('resultsContainer');
+      const resultsSection = document.getElementById('resultsSection');
+      
+      resultsContainer.innerHTML = '<div class="loading">🎵 Searching for karaoke videos...</div>';
+      resultsSection.style.display = 'block';
+      
+      try {
+        let allResults = [];
+        
+        // Search priority channels first
+        for (const channel of PRIORITY_CHANNELS) {
+          const channelQuery = `${query} karaoke ${channel}`;
+          const results = await fetchYouTubeResults(channelQuery, 2);
+          
+          // Mark as priority and add channel info
+          results.forEach(result => {
+            result.isPriority = true;
+            result.priorityChannel = channel;
+          });
+          
+          allResults = allResults.concat(results);
+        }
+        
+        // Then do general karaoke search
+        const generalResults = await fetchYouTubeResults(`${query} karaoke`, 5);
+        allResults = allResults.concat(generalResults);
+        
+        // Remove duplicates based on video ID
+        const uniqueResults = allResults.filter((video, index, self) =>
+          index === self.findIndex(v => v.id === video.id)
+        );
+        
+        displayResults(uniqueResults);
+      } catch (error) {
+        resultsContainer.innerHTML = `
+          <div class="error">
+            ⚠️ Error searching: ${error.message}<br/>
+            <small>Make sure you've added your YouTube API key in the code.</small>
+          </div>
+        `;
+      }
+    }
+    
+    // Fetch results from YouTube API
+    async function fetchYouTubeResults(query, maxResults) {
+      if (API_KEY === 'YOUR_YOUTUBE_API_KEY_HERE') {
+        throw new Error('Please add your YouTube API key to use this app. Get one at: https://console.cloud.google.com/');
+      }
+      
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=${maxResults}&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}`;
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch from YouTube API');
+      }
+      
+      const data = await response.json();
+      
+      return data.items.map(item => ({
+        id: item.id.videoId,
+        title: item.snippet.title,
+        channel: item.snippet.channelTitle,
+        thumbnail: item.snippet.thumbnails.medium.url,
+        isPriority: false
+      }));
+    }
+    
+    // Display search results
+    function displayResults(results) {
+      const resultsContainer = document.getElementById('resultsContainer');
+      
+      if (results.length === 0) {
+        resultsContainer.innerHTML = '<div class="empty-state"><p>No karaoke videos found. Try a different search!</p></div>';
+        return;
+      }
+      
+      resultsContainer.innerHTML = results.map(video => `
+        <div class="video-item" onclick="playVideo('${video.id}', '${escapeHtml(video.title)}', '${escapeHtml(video.channel)}')">
+          <img src="${video.thumbnail}" alt="${escapeHtml(video.title)}" class="video-thumbnail" />
+          <div class="video-info">
+            <div class="video-title">${video.title}</div>
+            <div class="video-channel">
+              ${video.isPriority ? `<span class="priority-badge">★ ${video.priorityChannel}</span>` : ''}
+              ${video.channel}
+            </div>
+          </div>
+          <button class="add-btn" onclick="event.stopPropagation(); addToPlaylist('${video.id}', '${escapeHtml(video.title)}', '${escapeHtml(video.channel)}')">
+            + Add
+          </button>
+        </div>
+      `).join('');
+    }
+    
+    // Play video
+    function playVideo(videoId, title, channel) {
+      if (player && player.loadVideoById) {
+        player.loadVideoById(videoId);
+        updateNowPlaying(title, channel);
+        
+        // Update active state in playlist
+        updatePlaylistActive(videoId);
+      }
+    }
+    
+    // Add video to playlist
+    function addToPlaylist(videoId, title, channel) {
+      // Check if already in playlist
+      if (playlist.some(item => item.id === videoId)) {
+        return;
+      }
+      
+      playlist.push({ id: videoId, title, channel });
+      updatePlaylistDisplay();
+      
+      // If this is the first video, start playing it
+      if (playlist.length === 1) {
+        currentVideoIndex = 0;
+        playVideo(videoId, title, channel);
+      }
+    }
+    
+    // Update playlist display
+    function updatePlaylistDisplay() {
+      const playlistContainer = document.getElementById('playlistContainer');
+      const clearBtn = document.getElementById('clearPlaylist');
+      
+      if (playlist.length === 0) {
+        playlistContainer.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/>
+            </svg>
+            <p>Your playlist is empty<br/>Add songs from search results!</p>
+          </div>
+        `;
+        clearBtn.style.display = 'none';
+        return;
+      }
+      
+      clearBtn.style.display = 'block';
+      
+      playlistContainer.innerHTML = playlist.map((video, index) => `
+        <div class="playlist-item ${index === currentVideoIndex ? 'active' : ''}" onclick="playFromPlaylist(${index})">
+          <div class="playlist-number">${index + 1}</div>
+          <div class="video-info">
+            <div class="video-title">${video.title}</div>
+            <div class="video-channel">${video.channel}</div>
+          </div>
+          <button class="remove-btn" onclick="event.stopPropagation(); removeFromPlaylist(${index})">✕</button>
+        </div>
+      `).join('');
+    }
+    
+    // Play video from playlist
+    function playFromPlaylist(index) {
+      currentVideoIndex = index;
+      const video = playlist[index];
+      playVideo(video.id, video.title, video.channel);
+    }
+    
+    // Remove from playlist
+    function removeFromPlaylist(index) {
+      playlist.splice(index, 1);
+      
+      // Adjust current index if needed
+      if (index < currentVideoIndex) {
+        currentVideoIndex--;
+      } else if (index === currentVideoIndex && playlist.length > 0) {
+        // If we removed the current video, play the next one or previous
+        currentVideoIndex = Math.min(currentVideoIndex, playlist.length - 1);
+        if (currentVideoIndex >= 0) {
+          playFromPlaylist(currentVideoIndex);
+        }
+      } else if (playlist.length === 0) {
+        currentVideoIndex = -1;
+      }
+      
+      updatePlaylistDisplay();
+    }
+    
+    // Clear entire playlist
+    document.getElementById('clearPlaylist').addEventListener('click', () => {
+      if (confirm('Clear entire playlist?')) {
+        playlist = [];
+        currentVideoIndex = -1;
+        updatePlaylistDisplay();
+        updateNowPlaying('Ready to Sing', 'Search for a karaoke song and start your performance!');
+      }
+    });
+    
+    // Play next video in playlist
+    function playNext() {
+      if (playlist.length === 0) return;
+      
+      currentVideoIndex++;
+      if (currentVideoIndex >= playlist.length) {
+        currentVideoIndex = 0; // Loop back to start
+      }
+      
+      playFromPlaylist(currentVideoIndex);
+    }
+    
+    // Update now playing info
+    function updateNowPlaying(title, channel) {
+      const nowPlaying = document.getElementById('nowPlaying');
+      nowPlaying.innerHTML = `
+        <h3>Now Playing</h3>
+        <p><strong>${title}</strong><br/>${channel}</p>
+      `;
+    }
+    
+    // Update active state in playlist
+    function updatePlaylistActive(videoId) {
+      const index = playlist.findIndex(item => item.id === videoId);
+      if (index !== -1) {
+        currentVideoIndex = index;
+        updatePlaylistDisplay();
+      }
+    }
+    
+    // Search form handler
+    document.getElementById('searchForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const query = document.getElementById('searchInput').value.trim();
+      if (query) {
+        searchKaraoke(query);
+      }
+    });
+    
+    // Utility function to escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    // Load YouTube IFrame API
+    if (typeof YT === 'undefined') {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+  </script>
+</body>
+</html>
