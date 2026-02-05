@@ -945,7 +945,7 @@
   <div class="container">
     <header>
       <h1>KARAOKE KOWALSKI</h1>
-      <p class="subtitle">Karaoke Theater</p>
+      <p class="subtitle">Ridiculous Karaoke Theater</p>
     </header>
     
     <div class="search-section">
@@ -1043,7 +1043,7 @@
     <button class="skip-countdown" onclick="skipCountdown()">Skip Countdown</button>
   </div>
 
-  <script src="https://www.youtube.com/iframe_"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     // YouTube API Key - Replace with your own API key
     const API_KEY = 'AIzaSyDiwphYsiJiJu5erL-P5cZEvhB2KIgMgYw';
@@ -2175,11 +2175,6 @@
         
         // Update active state in playlist
         updatePlaylistActive(videoId);
-        
-        // Request fullscreen after a short delay to ensure video is loading
-        setTimeout(() => {
-          requestFullscreen();
-        }, 500);
       }
     }
     
@@ -2248,26 +2243,6 @@
       } else if (tab === 'recent') {
         document.querySelector('.tab-btn:last-child').classList.add('active');
         document.getElementById('recentTab').classList.add('active');
-      }
-    }
-    
-    // Request fullscreen for the player
-    function requestFullscreen() {
-      const iframe = player.getIframe();
-      if (!iframe) return;
-      
-      try {
-        if (iframe.requestFullscreen) {
-          iframe.requestFullscreen();
-        } else if (iframe.webkitRequestFullscreen) {
-          iframe.webkitRequestFullscreen();
-        } else if (iframe.mozRequestFullScreen) {
-          iframe.mozRequestFullScreen();
-        } else if (iframe.msRequestFullscreen) {
-          iframe.msRequestFullscreen();
-        }
-      } catch (error) {
-        console.log('Fullscreen request failed:', error);
       }
     }
     
