@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>Karaoke Stage - YouTube Karaoke Player</title>
+  <title>Karaoke Kowalski - YouTube Karaoke Player</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Work+Sans:wght@400;600&display=swap');
     
@@ -288,6 +288,11 @@
     .player-section-wrapper {
       width: 100%;
       animation: fadeIn 0.6s ease-out 0.3s both;
+      display: none;
+    }
+    
+    .player-section-wrapper.visible {
+      display: block;
     }
     
     .player-section {
@@ -297,33 +302,6 @@
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
       border: 1px solid rgba(255, 255, 255, 0.1);
       transition: all 0.3s ease;
-    }
-    
-    .player-section.hidden {
-      display: none;
-    }
-    
-    .player-section.fullscreen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 9999;
-      padding: 0;
-      border-radius: 0;
-      background: #000;
-      border: none;
-    }
-    
-    .player-section.fullscreen .player-wrapper {
-      padding-bottom: 0;
-      height: 100vh;
-      border-radius: 0;
-    }
-    
-    .player-section.fullscreen .now-playing {
-      display: none;
     }
     
     .player-wrapper {
@@ -1051,7 +1029,7 @@
   <div class="container">
     <header>
       <h1>KARAOKE Kowalski</h1>
-      <p class="subtitle">Shitty Karaoke Theater</p>
+      <p class="subtitle">Garbage Karaoke Theater</p>
     </header>
     
     <div class="search-section">
@@ -1073,7 +1051,7 @@
     </div>
     
     <div class="player-section-wrapper">
-      <div class="player-section hidden">
+      <div class="player-section">
         <div class="player-wrapper">
           <div id="player"></div>
         </div>
@@ -1149,7 +1127,7 @@
     <button class="skip-countdown" onclick="skipCountdown()">Skip Countdown</button>
   </div>
 
-  <script src="https://www.youtube.com/iframe_"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     // YouTube API Keys - Add multiple keys here, will rotate when quota is exceeded
     const API_KEYS = [
@@ -1161,7 +1139,7 @@
       'AIzaSyA_xuZb8WY4YiMb8KsVOVR_1o4OOzhXzWI',
       'AIzaSyB4VkXCiACigBico7QE8j0EUD7bG3OAEBY',
       'AIzaSyCTe0AW8PMGnba4GrFMobaZVu3-UNAatII',
-          ];
+    ];
     
     let currentKeyIndex = 0;
     const MAX_SEARCH_RESULTS = 50;
@@ -1213,6 +1191,7 @@
     let countdownInterval = null;
     let countdownActive = false;
     let isPlayerVisible = false;
+    let playerWindow = null;
     
     // Cookie/LocalStorage functions for persistence
     function saveToLocalStorage() {
@@ -2196,27 +2175,106 @@
     }
     
     function onPlayerStateChange(event) {
-      const playerSection = document.querySelector('.player-section');
-      
-      // When video starts playing
+      // When video starts playing, open player window if not already open
       if (event.data === YT.PlayerState.PLAYING) {
-        playerSection.classList.remove('hidden');
-        playerSection.classList.add('fullscreen');
+        if (!playerWindow || playerWindow.closed) {
+          openPlayerWindow();
+        }
         isPlayerVisible = true;
       }
       
-      // When video is paused or buffering, keep it visible
-      if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.BUFFERING) {
-        // Keep fullscreen while paused/buffering
-      }
-      
-      // When video ends, hide player and start countdown
+      // When video ends, close player window and start countdown
       if (event.data === YT.PlayerState.ENDED) {
-        playerSection.classList.add('hidden');
-        playerSection.classList.remove('fullscreen');
+        closePlayerWindow();
         isPlayerVisible = false;
         startCountdown();
       }
+    }
+    
+    // Open player window in new window
+    function openPlayerWindow() {
+      if (playerWindow && !playerWindow.closed) {
+        playerWindow.focus();
+        return;
+      }
+      
+      const videoId = player.getVideoData().video_id;
+      if (!videoId) return;
+      
+      // Get current video info for title
+      const currentVideo = playlist[currentVideoIndex];
+      const windowTitle = currentVideo ? `${currentVideo.title} - Karaoke Stage` : 'Karaoke Stage';
+      
+      // Open new window - can be moved to external monitor
+      playerWindow = window.open('', 'KaraokePlayer', 'width=1280,height=720,menubar=no,toolbar=no,location=no,status=no');
+      
+      if (playerWindow) {
+        playerWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>${windowTitle}</title>
+            <style>
+              * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+              }
+              body {
+                background: #000;
+                overflow: hidden;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+              }
+              #player-container {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+              }
+              iframe {
+                width: 100%;
+                height: 100%;
+              }
+            </style>
+          </head>
+          <body>
+            <div id="player-container">
+              <iframe 
+                id="youtube-player"
+                width="100%" 
+                height="100%" 
+                src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&modestbranding=1&rel=0&enablejsapi=1" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+              </iframe>
+            </div>
+          </body>
+          </html>
+        `);
+        playerWindow.document.close();
+        
+        // Listen for when the window is closed manually
+        const checkClosed = setInterval(() => {
+          if (playerWindow.closed) {
+            clearInterval(checkClosed);
+            playerWindow = null;
+            isPlayerVisible = false;
+          }
+        }, 500);
+      }
+    }
+    
+    // Close player window
+    function closePlayerWindow() {
+      if (playerWindow && !playerWindow.closed) {
+        playerWindow.close();
+      }
+      playerWindow = null;
     }
     
     // Search for karaoke videos
@@ -2441,7 +2499,10 @@
         // Update active state in playlist
         updatePlaylistActive(videoId);
         
-        // Player will be shown automatically when video starts playing (via onPlayerStateChange)
+        // Open player window
+        setTimeout(() => {
+          openPlayerWindow();
+        }, 500);
       }
     }
     
