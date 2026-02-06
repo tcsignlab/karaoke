@@ -180,6 +180,8 @@
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
       border: 1px solid rgba(255, 255, 255, 0.1);
       animation: fadeIn 0.6s ease-out 0.2s both;
+      position: relative;
+      z-index: 10;
     }
     
     @keyframes fadeIn {
@@ -351,9 +353,109 @@
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
     }
     
+    .player-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .player-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(26, 31, 58, 0.95) 0%, rgba(10, 14, 39, 0.95) 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      opacity: 1;
+      transition: opacity 0.5s ease-in-out;
+      pointer-events: none;
+      border-radius: 12px;
+    }
+    
+    .player-overlay.hidden {
+      opacity: 0;
+    }
+    
+    .player-overlay-content {
+      text-align: center;
+      animation: overlayFloat 3s ease-in-out infinite;
+    }
+    
+    @keyframes overlayFloat {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+    
+    .player-overlay-image {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 
+        0 0 60px rgba(255, 23, 68, 0.4),
+        0 0 120px rgba(0, 229, 255, 0.3),
+        inset 0 0 80px rgba(255, 214, 0, 0.2);
+      border: 4px solid var(--secondary);
+      animation: overlayImagePulse 2s ease-in-out infinite;
+      margin-bottom: 2rem;
+    }
+    
+    @keyframes overlayImagePulse {
+      0%, 100% {
+        box-shadow: 
+          0 0 60px rgba(255, 23, 68, 0.4),
+          0 0 120px rgba(0, 229, 255, 0.3),
+          inset 0 0 80px rgba(255, 214, 0, 0.2);
+      }
+      50% {
+        box-shadow: 
+          0 0 80px rgba(255, 23, 68, 0.6),
+          0 0 160px rgba(0, 229, 255, 0.5),
+          inset 0 0 100px rgba(255, 214, 0, 0.4);
+      }
+    }
+    
+    .player-overlay-text {
+      font-family: 'Bungee', cursive;
+      font-size: 2rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: textShimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes textShimmer {
+      0%, 100% {
+        filter: brightness(1);
+      }
+      50% {
+        filter: brightness(1.5);
+      }
+    }
+    
     @media (min-width: 768px) {
       .player-wrapper {
         padding-bottom: 50%;
+      }
+      
+      .player-overlay-image {
+        width: 400px;
+        height: 400px;
+      }
+      
+      .player-overlay-text {
+        font-size: 2.5rem;
       }
     }
     
@@ -361,25 +463,15 @@
       .player-wrapper {
         padding-bottom: 45%;
       }
-    }
-    
-    .player-wrapper {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      overflow: hidden;
-      border-radius: 12px;
-      background: #000;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-    }
-    
-    .player-wrapper iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      
+      .player-overlay-image {
+        width: 500px;
+        height: 500px;
+      }
+      
+      .player-overlay-text {
+        font-size: 3rem;
+      }
     }
     
     .now-playing {
@@ -416,13 +508,15 @@
       width: 100%;
       animation: fadeIn 0.6s ease-out 0.4s both;
       margin-bottom: 2rem;
+      position: relative;
+      z-index: 5;
     }
     
     .results-section .section-header {
       position: sticky;
       top: 0;
       background: var(--bg-medium);
-      z-index: 100;
+      z-index: 50;
       padding: 1.5rem 0;
       margin: -2rem -2rem 1.5rem -2rem;
       padding-left: 2rem;
@@ -783,6 +877,8 @@
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
       border: 1px solid rgba(255, 255, 255, 0.1);
       animation: fadeIn 0.6s ease-out 0.2s both;
+      position: relative;
+      z-index: 20000;
     }
     
     .nav-content {
@@ -801,6 +897,8 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 0.75rem;
+      position: relative;
+      z-index: 20001;
     }
     
     .nav-label {
@@ -814,6 +912,7 @@
     
     .dropdown {
       position: relative;
+      z-index: 20002;
     }
     
     .dropdown-btn {
@@ -835,6 +934,8 @@
       gap: 0.5rem;
       white-space: nowrap;
       width: 100%;
+      position: relative;
+      z-index: 20003;
     }
     
     .dropdown-btn:hover {
@@ -871,7 +972,7 @@
       max-width: 350px;
       max-height: 400px;
       overflow-y: auto;
-      z-index: 10000;
+      z-index: 20004;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     }
     
@@ -1507,6 +1608,14 @@
       <div class="player-section">
         <div class="player-wrapper">
           <div id="player"></div>
+          <div class="player-overlay" id="playerOverlay">
+            <div class="player-overlay-content">
+              <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbTBpZDFkdDN2OXdiNWZkZ3FmOTJ4YzB4dWE4bDJsb3l4ZmFnemxlZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/xTiTnqUxyWbsAXq7Ju/giphy.gif" 
+                   alt="Karaoke" 
+                   class="player-overlay-image" />
+              <div class="player-overlay-text">🎤 Ready to Sing! 🎤</div>
+            </div>
+          </div>
         </div>
         <div class="now-playing" id="nowPlaying">
           <h3>Now Playing</h3>
@@ -2595,8 +2704,11 @@
     }
     
     function onPlayerStateChange(event) {
-      // When video starts playing, scroll to player
+      const playerOverlay = document.getElementById('playerOverlay');
+      
+      // When video starts playing, hide overlay and scroll to player
       if (event.data === YT.PlayerState.PLAYING) {
+        playerOverlay.classList.add('hidden');
         const playerWrapper = document.getElementById('playerSectionWrapper');
         setTimeout(() => {
           playerWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -3184,7 +3296,12 @@
     
     // Play next video in playlist
     function playNext() {
-      if (playlist.length === 0) return;
+      if (playlist.length === 0) {
+        // Show overlay if no more videos
+        const playerOverlay = document.getElementById('playerOverlay');
+        playerOverlay.classList.remove('hidden');
+        return;
+      }
       
       currentVideoIndex++;
       if (currentVideoIndex >= playlist.length) {
